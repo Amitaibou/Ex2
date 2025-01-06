@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Ex2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/production/Ex2/Ex2Sol_obf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/Ex2/Ex2Sol_v0.2.jar-obf.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
