@@ -53,37 +53,63 @@ public class Utils {
             return false;
         }
     }
+    public static double computeForm(String form, Ex2Sheet sheet) {
+        if (form == null || !form.startsWith("=")) {
+            throw new IllegalArgumentException("Invalid formula: " + form);
+        }
+
+        // הסרת ה- "=" מהפורמולה
+        String formula = form.substring(1).trim();
+        System.out.println("Original formula: " + formula); // מעקב אחר הפורמולה המקורית
+
+        try {
+            // החלפת הפניות של תאים בערכים שלהם
+            String replacedFormula = replaceCellReferences(formula, sheet);
+            System.out.println("Replaced formula: " + replacedFormula); // מעקב אחרי פורמולה שהוחלפה
+
+            // חישוב הערך הסופי של הפורמולה
+            double result = evalFormula(replacedFormula);
+            System.out.println("Evaluation result: " + result); // הדפסת התוצאה הסופית
+
+            return result;
+        } catch (Exception e) {
+            System.err.println("Error in formula computation: " + e.getMessage());
+            throw new IllegalArgumentException("Error computing formula: " + form);
+        }
+    }
 
     public static String replaceCellReferences(String formula, Ex2Sheet sheet) {
         StringBuilder result = new StringBuilder();
         int i = 0;
 
-        while(true) {
-            while(i < formula.length()) {
-                char c = formula.charAt(i);
-                if (Character.isLetter(c)) {
-                    int j;
-                    for(j = i; j < formula.length() && Character.isLetterOrDigit(formula.charAt(j)); ++j) {
-                    }
+        while (i < formula.length()) {
+            char c = formula.charAt(i);
 
-                    String cellRef = formula.substring(i, j);
-                    int[] coords = sheet.parseCoordinates(cellRef);
-                    String cellValue = sheet.value(coords[0], coords[1]);
-                    if (cellValue == null || cellValue.trim().isEmpty()) {
-                        throw new IllegalArgumentException("Invalid or empty reference in formula: " + cellRef);
-                    }
-
-                    result.append(cellValue);
-                    i = j;
-                } else {
-                    result.append(c);
-                    ++i;
+            if (Character.isLetter(c)) {
+                int j = i;
+                while (j < formula.length() && (Character.isLetterOrDigit(formula.charAt(j)))) {
+                    j++;
                 }
-            }
 
-            return result.toString();
+                String cellRef = formula.substring(i, j);
+                int[] coords = sheet.parseCoordinates(cellRef);
+                String cellValue = sheet.eval(coords[0], coords[1]);
+
+                if (cellValue == null || cellValue.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Formula contains a reference to an empty cell: " + cellRef);
+                }
+
+                result.append(cellValue);
+                i = j;
+            } else {
+                result.append(c);
+                i++;
+            }
         }
+
+        return result.toString();
     }
+
 
     private static boolean areParenthesesBalanced(String formula) {
         int count = 0;
