@@ -91,14 +91,15 @@ public class Ex2Sheet implements Sheet {
         if (cell.getType() == Ex2Utils.FORM) {
             try {
                 String formula = cell.getData().substring(1).trim(); // מסיר "=" מהפורמולה
-                System.out.println("Formula in " + cellName + ": " + formula);
+                //   System.out.println("Formula in " + cellName + ": " + formula);
 
                 double result = Utils.computeForm(cell.getData(), this); // חישוב הפורמולה
-                System.out.println("Result of formula in " + cellName + ": " + result);
+                //System.out.println("Result of formula in " + cellName + ": " + result);
 
                 return Double.toString(result);
             } catch (IllegalArgumentException e) {
                 cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+                cell.setData(Ex2Utils.ERR_FORM);
                 return Ex2Utils.ERR_FORM;
             }
         }
