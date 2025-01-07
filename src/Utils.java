@@ -60,16 +60,16 @@ public class Utils {
 
         // הסרת ה- "=" מהפורמולה
         String formula = form.substring(1).trim();
-       // System.out.println("Original formula: " + formula); // מעקב אחר הפורמולה המקורית
+        // System.out.println("Original formula: " + formula); // מעקב אחר הפורמולה המקורית
 
         try {
             // החלפת הפניות של תאים בערכים שלהם
             String replacedFormula = replaceCellReferences(formula, sheet);
-         //   System.out.println("Replaced formula: " + replacedFormula); // מעקב אחרי פורמולה שהוחלפה
+            //   System.out.println("Replaced formula: " + replacedFormula); // מעקב אחרי פורמולה שהוחלפה
 
             // חישוב הערך הסופי של הפורמולה
             double result = evalFormula(replacedFormula);
-           // System.out.println("Evaluation result: " + result); // הדפסת התוצאה הסופית
+            // System.out.println("Evaluation result: " + result); // הדפסת התוצאה הסופית
 
             return result;
         } catch (Exception e) {
@@ -85,13 +85,19 @@ public class Utils {
         while (i < formula.length()) {
             char c = formula.charAt(i);
 
+            // זיהוי תאים עם אותיות (קטנות או גדולות)
             if (Character.isLetter(c)) {
                 int j = i;
-                while (j < formula.length() && (Character.isLetterOrDigit(formula.charAt(j)))) {
+                while (j < formula.length() && Character.isLetterOrDigit(formula.charAt(j))) {
                     j++;
                 }
 
                 String cellRef = formula.substring(i, j);
+
+                // המרת האות הראשונה לגדולה
+                cellRef = cellRef.toUpperCase();
+
+                // תרגום הפניה לקואורדינטות והערכת הערך שלה
                 int[] coords = sheet.parseCoordinates(cellRef);
                 String cellValue = sheet.eval(coords[0], coords[1]);
 
