@@ -109,7 +109,7 @@ public class Utils {
         return result.toString();
     }
 
-
+    // checks legit use of parentheses
     public static boolean areParenthesesBalanced(String formula) {
         int count = 0;
         char[] var2 = formula.toCharArray();
