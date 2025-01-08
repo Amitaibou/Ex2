@@ -7,7 +7,7 @@ import java.util.Stack;
 public class Utils {
     public Utils() {
     }
-
+    // check if is number
     public static boolean isNumber(String input) {
         if (input != null && !input.trim().isEmpty()) {
             try {
@@ -20,7 +20,7 @@ public class Utils {
             return false;
         }
     }
-
+    // check if is text and convert it to string
     public static boolean isText(String input) {
         if (input != null && !input.trim().isEmpty()) {
             if (input.matches(".*([+\\-*/]{2,}).*")) {
@@ -34,7 +34,7 @@ public class Utils {
             return false;
         }
     }
-
+    // checks if is formula or not
     public static boolean isForm(String input) {
         if (input != null && input.startsWith("=")) {
             String formula = input.substring(1).trim();
@@ -49,7 +49,7 @@ public class Utils {
             return false;
         }
     }
-
+    // calculate formulas
     public static double computeForm(String form, Ex2Sheet sheet) {
         if (form == null || !form.startsWith("=")) {
             throw new IllegalArgumentException("Invalid formula: " + form);
