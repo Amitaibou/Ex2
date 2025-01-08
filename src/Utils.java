@@ -143,25 +143,35 @@ public class Utils {
     }
 
     private static List<String> tokenizeFormula(String formula) {
-        List<String> tokens = new ArrayList();
+        List<String> tokens = new ArrayList<>();
         StringBuilder numberBuffer = new StringBuilder();
 
         for (int i = 0; i < formula.length(); ++i) {
             char c = formula.charAt(i);
-            if (!Character.isDigit(c) && c != '.') {
-                if (numberBuffer.length() > 0) {
-                    tokens.add(numberBuffer.toString());
-                    numberBuffer.setLength(0);
-                }
 
-                if (!Character.isWhitespace(c)) {
-                    tokens.add(Character.toString(c));
-                }
-            } else {
+            // If the character is a digit or a decimal point, add it to the number buffer
+            if (Character.isDigit(c) || c == '.') {
                 numberBuffer.append(c);
+            } else {
+                // Handle negative numbers and multiplication by negative numbers
+                if (c == '-' && (tokens.isEmpty() || isOperator(tokens.get(tokens.size() - 1)) || tokens.get(tokens.size() - 1).equals("("))) {
+                    numberBuffer.append(c); // Treat as part of a negative number
+                } else {
+                    // If we encounter an operator or other character, flush the number buffer
+                    if (numberBuffer.length() > 0) {
+                        tokens.add(numberBuffer.toString());
+                        numberBuffer.setLength(0);
+                    }
+
+                    // Add the current character as a token (operator, parentheses, etc.)
+                    if (!Character.isWhitespace(c)) {
+                        tokens.add(Character.toString(c));
+                    }
+                }
             }
         }
 
+        // Add the last number in the buffer as a token
         if (numberBuffer.length() > 0) {
             tokens.add(numberBuffer.toString());
         }
@@ -169,56 +179,79 @@ public class Utils {
         return tokens;
     }
 
+    private static boolean isOperator(String token) {
+        return token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/");
+    }
+
+
+
     private static double evaluateTokens(List<String> tokens) {
-        Stack<Double> numbers = new Stack();
-        Stack<Character> operators = new Stack();
-        Iterator var3 = tokens.iterator();
+        Stack<Double> values = new Stack<>();
+        Stack<String> operators = new Stack<>();
 
-        while (true) {
-            while (true) {
-                while (true) {
-                    while (var3.hasNext()) {
-                        String token = (String) var3.next();
-                        if (!isNumber(token)) {
-                            if (!token.equals("(")) {
-                                if (token.equals(")")) {
-                                    while (!operators.isEmpty() && (Character) operators.peek() != '(') {
-                                        processTopOperator(numbers, operators);
-                                    }
-
-                                    if (operators.isEmpty() || (Character) operators.peek() != '(') {
-                                        throw new IllegalArgumentException("Mismatched parentheses in formula.");
-                                    }
-
-                                    operators.pop();
-                                } else if (isOperator(token.charAt(0))) {
-                                    while (!operators.isEmpty() && precedence((Character) operators.peek()) >= precedence(token.charAt(0))) {
-                                        processTopOperator(numbers, operators);
-                                    }
-
-                                    operators.push(token.charAt(0));
-                                }
-                            } else {
-                                operators.push('(');
-                            }
-                        } else {
-                            numbers.push(Double.parseDouble(token));
-                        }
-                    }
-
-                    while (!operators.isEmpty()) {
-                        processTopOperator(numbers, operators);
-                    }
-
-                    if (numbers.size() != 1) {
-                        throw new IllegalArgumentException("Invalid formula structure.");
-                    }
-
-                    return (Double) numbers.pop();
+        for (String token : tokens) {
+            if (isNumber(token)) {
+                values.push(Double.parseDouble(token));
+            } else if (isOperator(token)) {
+                while (!operators.isEmpty() && hasPrecedence(token, operators.peek())) {
+                    double b = values.pop();
+                    double a = values.pop();
+                    String op = operators.pop();
+                    values.push(applyOperator(a, b, op));
                 }
+                operators.push(token);
+            } else if (token.equals("(")) {
+                operators.push(token);
+            } else if (token.equals(")")) {
+                while (!operators.isEmpty() && !operators.peek().equals("(")) {
+                    double b = values.pop();
+                    double a = values.pop();
+                    String op = operators.pop();
+                    values.push(applyOperator(a, b, op));
+                }
+                if (!operators.isEmpty() && operators.peek().equals("(")) {
+                    operators.pop();
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid token: " + token);
             }
         }
+
+        while (!operators.isEmpty()) {
+            double b = values.pop();
+            double a = values.pop();
+            String op = operators.pop();
+            values.push(applyOperator(a, b, op));
+        }
+
+        return values.pop();
     }
+
+    private static double applyOperator(double a, double b, String operator) {
+        switch (operator) {
+            case "+":
+                return a + b;
+            case "-":
+                return a - b;
+            case "*":
+                return a * b;
+            case "/":
+                if (b == 0) {
+                    return Double.POSITIVE_INFINITY; // Handle division by zero
+                }
+                return a / b;
+            default:
+                throw new IllegalArgumentException("Unknown operator: " + operator);
+        }
+    }
+
+    private static boolean hasPrecedence(String op1, String op2) {
+        if ((op1.equals("*") || op1.equals("/")) && (op2.equals("+") || op2.equals("-"))) {
+            return false;
+        }
+        return true;
+    }
+
 
     private static boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/';
