@@ -117,7 +117,7 @@ public class Utils {
     }
 
 
-    private static boolean areParenthesesBalanced(String formula) {
+    public static boolean areParenthesesBalanced(String formula) {
         int count = 0;
         char[] var2 = formula.toCharArray();
         int var3 = var2.length;

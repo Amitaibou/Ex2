@@ -29,7 +29,7 @@ public class SCell implements Cell {
             type = Ex2Utils.TEXT; // Empty cell is considered text
         } else if (Utils.isForm(s)) {
             type = Ex2Utils.FORM; // Formula starts with '='
-        } else if (Utils.isNumber(line)) {
+        } else if (Utils.isNumber(s)) {
             type = Ex2Utils.NUMBER; // Cell contains a valid number
             line = Double.valueOf(s).toString();
         } else if (Utils.isText(s)) {
