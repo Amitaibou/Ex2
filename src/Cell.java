@@ -16,7 +16,7 @@ public interface Cell {
  *  */
     void setData(String s);
 
-
+    public String getLine();
     /**
      * Returns the type of this cell {TEXT,NUMBER, FORM, ERR_CYCLE_FORM, ERR_WRONG_FORM}
      * @return an int value (as defined in Ex2Utils)

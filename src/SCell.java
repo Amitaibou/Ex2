@@ -6,15 +6,29 @@ public class SCell implements Cell {
     private String line; // The content of the cell
     private int type; // The type of the cell (TEXT, NUMBER, FORM, etc.)
     private int order; // The evaluation order of the cell
+    private String err;
 
     public SCell(String s) {
+        setErr(s);
         setData(s);
-        setOrder(0); // Default order is 0
+        setOrder(0);// Default order is 0
+    }
+
+    public void setErr(String err) {
+        this.err = err;
+    }
+    public String getErr( ) {
+        return err;
     }
 
     @Override
     public int getOrder() {
         return order;
+    }
+
+    @Override
+    public String getLine() {
+        return line;
     }
 
     @Override
@@ -36,7 +50,7 @@ public class SCell implements Cell {
             type = Ex2Utils.TEXT; // Valid text
         } else {
             type = Ex2Utils.ERR_FORM_FORMAT; // Invalid format
-           line = Ex2Utils.ERR_FORM;
+            err = Ex2Utils.ERR_FORM;
         }
     }
 
@@ -46,7 +60,7 @@ public class SCell implements Cell {
 
     @Override
     public String getData() {
-        return line;
+        return err == line ? line : err;
     }
 
     @Override

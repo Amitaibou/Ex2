@@ -19,9 +19,9 @@ public class Ex2Sheet implements Sheet {
         }
     }
 
-    public Ex2Sheet() {
-        this(Ex2Utils.WIDTH, Ex2Utils.HEIGHT);
-    }
+//    public Ex2Sheet() {
+//        this(Ex2Utils.WIDTH, Ex2Utils.HEIGHT);
+//    }
 
     @Override
     public boolean isIn(int x, int y) {
@@ -76,57 +76,45 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public String eval(int x, int y) {
+        Cell cell = get(x, y);
         String cellName = convertCoordinatesToCellName(x, y);
-        System.out.println("Evaluating cell " + cellName);
 
-        // בדיקה למחזוריות (Cycle)
         if (evaluatingCells.contains(cellName)) {
-            System.out.println("Cycle detected in cell: " + cellName);
-            Cell cell = get(x, y);
-            if (cell != null) {
-                cell.setType(Ex2Utils.ERR_CYCLE_FORM); // הגדרת שגיאת מחזור
-                cell.setData(Ex2Utils.ERR_CYCLE); // עדכון הנתונים לשגיאת מחזור
-            }
-            return Ex2Utils.ERR_CYCLE; // החזרת ERR_CYCLE
+            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+            return Ex2Utils.ERR_CYCLE;
         }
-
-        // הוספת התא למעקב תאים הנמצאים בהערכה
         evaluatingCells.add(cellName);
 
-        // קבלת התא ובדיקת תקינותו
-        Cell cell = get(x, y);
-        if (cell == null || cell.getData() == null || cell.getData().isEmpty()) {
-            System.out.println("Cell " + cellName + " is empty.");
-            evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+        if (cell == null || cell.getData().isEmpty()) {
+            evaluatingCells.remove(cellName);
             return Ex2Utils.EMPTY_CELL;
         }
 
-        // טיפול בנוסחאות
         if (cell.getType() == Ex2Utils.FORM) {
             try {
-                String formula = cell.getData().substring(1).trim();
-                System.out.println("Formula in " + cellName + ": " + formula);
-
-                // חישוב הנוסחה
                 double result = Utils.computeForm(cell.getData(), this);
-
-                cell.setType(Ex2Utils.FORM); // סימון כתא נוסחה תקין
-                evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+                evaluatingCells.remove(cellName);
                 return Double.toString(result);
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid formula in cell " + cellName);
-                cell.setType(Ex2Utils.ERR_FORM_FORMAT);
-                cell.setData(Ex2Utils.ERR_FORM); // עדכון הנתונים לשגיאת פורמולה
-                evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+                handleInvalidFormula(cell, cellName);
+//                cell.setData(Ex2Utils.ERR_FORM);
                 return Ex2Utils.ERR_FORM;
             }
         }
-
-        // עבור תאים שאינם נוסחאות, החזרת הנתון הגולמי
-        evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+        evaluatingCells.remove(cellName);
         return cell.getData();
     }
 
+
+
+    private void handleInvalidFormula(Cell cell, String cellName) {
+        if (get(cellName) != cell) {
+            System.out.println("Invalid formula in cell " + cellName);
+            cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+            cell.setData(Ex2Utils.ERR_FORM);
+            evaluatingCells.remove(cellName);
+        }
+    }
 
 
     @Override

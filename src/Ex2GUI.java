@@ -124,11 +124,11 @@ public class Ex2GUI {
 		if(table.isIn(xx,yy)) {
 			Cell cc = table.get(xx,yy);
 			cord = new CellEntry(xx, yy);
-			String ww = cord+": "+cc.toString()+" : ";
-			StdDrawEx2.text(Ex2Utils.GUI_X_START, Ex2Utils.MAX_X-1, ww);
+ 			String ww = cord+": "+cc.getLine()+" : ";
+			StdDrawEx2.text(Ex2Utils.GUI_X_START,  Ex2Utils.MAX_X-1, ww);
 			StdDrawEx2.show();
 			if(Ex2Utils.Debug) {System.out.println(ww);}
-			String c = StdDrawEx2.getCell(cord,cc.getData());
+			String c = StdDrawEx2.getCell(cord,cc.getLine());
 			String s1 = table.get(xx,yy).getData();
 			if(c==null) {
 				table.set(xx,yy,s1);

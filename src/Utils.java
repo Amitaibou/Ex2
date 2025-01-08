@@ -23,13 +23,15 @@ public class Utils {
     // check if is text and convert it to string
     public static boolean isText(String input) {
         if (input != null && !input.trim().isEmpty()) {
-            if (input.matches(".*([+\\-*/]{2,}).*")) {
+            if (!input.startsWith("="))
+                return true;
+            if(input.matches(".*([+\\-*/]{2,}).*")) {
                 return false;
             } else if (input.matches("[0-9.]+([+\\-*/][0-9.]+)*")) {
                 return true;
-            } else {
-                return input.matches("[A-Za-z0-9]+") && !isNumber(input) && !input.startsWith("=");
-            }
+            } else if(input.matches("[A-Za-z0-9]+") && !isNumber(input) && !input.startsWith("="))
+                return false;
+            return true;
         } else {
             return false;
         }
@@ -61,7 +63,6 @@ public class Utils {
         try {
             // switching cells in their values
             String replacedFormula = replaceCellReferences(formula, sheet);
-
             double result = evalFormula(replacedFormula);
 
             return result;
