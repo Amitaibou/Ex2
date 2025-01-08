@@ -44,7 +44,6 @@ public class Ex2Sheet implements Sheet {
 
         // שימוש ב-convertCoordinatesToCellName להדפסת שם התא
         String cellName = convertCoordinatesToCellName(x, y);
-        System.out.println("Updating cell " + cellName + " with value: " + c);
 
         table[x][y] = new SCell(c);
         eval(); // עדכון כל הגיליון לאחר הכנסת ערך חדש
@@ -77,11 +76,10 @@ public class Ex2Sheet implements Sheet {
     @Override
     public String eval(int x, int y) {
         String cellName = convertCoordinatesToCellName(x, y);
-//        System.out.println("Evaluating cell " + cellName);
 
         // בדיקה למחזוריות (Cycle)
         if (evaluatingCells.contains(cellName)) {
-            System.out.println("Cycle detected in cell: " + cellName);
+//            System.out.println("Cycle detected in cell: " + cellName);
             Cell cell = get(x, y);
             if (cell != null) {
                 cell.setType(Ex2Utils.ERR_CYCLE_FORM); // הגדרת שגיאת מחזור
@@ -96,7 +94,6 @@ public class Ex2Sheet implements Sheet {
         // קבלת התא ובדיקת תקינותו
         Cell cell = get(x, y);
         if (cell == null || cell.getData() == null || cell.getData().isEmpty()) {
-//            System.out.println("Cell " + cellName + " is empty.");
             evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
             return Ex2Utils.EMPTY_CELL;
         }
@@ -105,7 +102,6 @@ public class Ex2Sheet implements Sheet {
         if (cell.getType() == Ex2Utils.FORM) {
             try {
                 String formula = cell.getData().substring(1).trim();
-                System.out.println("Formula in " + cellName + ": " + formula);
 
                 // חישוב הנוסחה
                 double result = Utils.computeForm(cell.getData(), this);
@@ -114,12 +110,9 @@ public class Ex2Sheet implements Sheet {
                 evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
                 return Double.toString(result);
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid formula in cell " + cellName);
-                if (get(cellName) !=cell ) {
-                    cell.setType(Ex2Utils.ERR_FORM_FORMAT);
-                    cell.setData(Ex2Utils.ERR_FORM); // עדכון הנתונים לשגיאת פורמולה
-                    evaluatingCells.remove(cellName);//
-                }// הסרה מהסט לאחר סיום
+                cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+                cell.setData(Ex2Utils.ERR_FORM); // עדכון הנתונים לשגיאת פורמולה
+                evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
                 return Ex2Utils.ERR_FORM;
             }
         }

@@ -53,6 +53,7 @@ public class Utils {
             return false;
         }
     }
+
     public static double computeForm(String form, Ex2Sheet sheet) {
         if (form == null || !form.startsWith("=")) {
             throw new IllegalArgumentException("Invalid formula: " + form);
@@ -60,16 +61,12 @@ public class Utils {
 
         // הסרת ה- "=" מהפורמולה
         String formula = form.substring(1).trim();
-        // System.out.println("Original formula: " + formula); // מעקב אחר הפורמולה המקורית
 
         try {
             // החלפת הפניות של תאים בערכים שלהם
             String replacedFormula = replaceCellReferences(formula, sheet);
-            //   System.out.println("Replaced formula: " + replacedFormula); // מעקב אחרי פורמולה שהוחלפה
 
-            // חישוב הערך הסופי של הפורמולה
             double result = evalFormula(replacedFormula);
-            // System.out.println("Evaluation result: " + result); // הדפסת התוצאה הסופית
 
             return result;
         } catch (Exception e) {
@@ -122,7 +119,7 @@ public class Utils {
         char[] var2 = formula.toCharArray();
         int var3 = var2.length;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
+        for (int var4 = 0; var4 < var3; ++var4) {
             char c = var2[var4];
             if (c == '(') {
                 ++count;
@@ -153,7 +150,7 @@ public class Utils {
         List<String> tokens = new ArrayList();
         StringBuilder numberBuffer = new StringBuilder();
 
-        for(int i = 0; i < formula.length(); ++i) {
+        for (int i = 0; i < formula.length(); ++i) {
             char c = formula.charAt(i);
             if (!Character.isDigit(c) && c != '.') {
                 if (numberBuffer.length() > 0) {
@@ -181,25 +178,25 @@ public class Utils {
         Stack<Character> operators = new Stack();
         Iterator var3 = tokens.iterator();
 
-        while(true) {
-            while(true) {
-                while(true) {
-                    while(var3.hasNext()) {
-                        String token = (String)var3.next();
+        while (true) {
+            while (true) {
+                while (true) {
+                    while (var3.hasNext()) {
+                        String token = (String) var3.next();
                         if (!isNumber(token)) {
                             if (!token.equals("(")) {
                                 if (token.equals(")")) {
-                                    while(!operators.isEmpty() && (Character)operators.peek() != '(') {
+                                    while (!operators.isEmpty() && (Character) operators.peek() != '(') {
                                         processTopOperator(numbers, operators);
                                     }
 
-                                    if (operators.isEmpty() || (Character)operators.peek() != '(') {
+                                    if (operators.isEmpty() || (Character) operators.peek() != '(') {
                                         throw new IllegalArgumentException("Mismatched parentheses in formula.");
                                     }
 
                                     operators.pop();
                                 } else if (isOperator(token.charAt(0))) {
-                                    while(!operators.isEmpty() && precedence((Character)operators.peek()) >= precedence(token.charAt(0))) {
+                                    while (!operators.isEmpty() && precedence((Character) operators.peek()) >= precedence(token.charAt(0))) {
                                         processTopOperator(numbers, operators);
                                     }
 
@@ -213,7 +210,7 @@ public class Utils {
                         }
                     }
 
-                    while(!operators.isEmpty()) {
+                    while (!operators.isEmpty()) {
                         processTopOperator(numbers, operators);
                     }
 
@@ -221,7 +218,7 @@ public class Utils {
                         throw new IllegalArgumentException("Invalid formula structure.");
                     }
 
-                    return (Double)numbers.pop();
+                    return (Double) numbers.pop();
                 }
             }
         }
@@ -250,9 +247,9 @@ public class Utils {
         if (numbers.size() < 2) {
             throw new IllegalArgumentException("Invalid formula: missing operands.");
         } else {
-            double b = (Double)numbers.pop();
-            double a = (Double)numbers.pop();
-            char op = (Character)operators.pop();
+            double b = (Double) numbers.pop();
+            double a = (Double) numbers.pop();
+            char op = (Character) operators.pop();
             numbers.push(applyOperator(op, a, b));
         }
     }

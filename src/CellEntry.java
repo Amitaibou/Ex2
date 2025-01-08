@@ -18,7 +18,6 @@ public class CellEntry implements Index2D {
     public CellEntry(int xx, int yy) {
         this.x = xx;
         this.y = yy;
-//        this.cell = c;
     }
 
     /**
@@ -26,11 +25,6 @@ public class CellEntry implements Index2D {
      *
      * @return The string representation of this cell's index in spreadsheet format.
      */
-//    @Override
-//    public String toString() {
-//        // Convert x (0-based) to a letter ('A'-'Z').
-//        char columnLetter = (char) ('A' + x);
-//        return columnLetter + String.valueOf(y);
 //    }
 
     /**
@@ -41,13 +35,9 @@ public class CellEntry implements Index2D {
      */
     @Override
     public boolean isValid() {
-        // Check x is within valid column range ('A' to 'Z').
-//        if (x < 0 || x > 25)
         {
             return false;
         }
-        // Check y is within valid row range [0-99].
-//        return y >= 0 && y <= 99;
     }
 
     /**
@@ -74,36 +64,3 @@ public class CellEntry implements Index2D {
         return Ex2Utils.ABC[this.x] + this.y;
     }
 }
-//    /**
-//     * Returns the associated Cell object.
-//     *
-//     * @return The Cell object associated with this entry.
-//     */
-//    public Cell getCell() {
-//        return cell;
-//    }
-//
-//    /**
-//     * Sets a new Cell object for this entry.
-//     *
-//     * @param cell The new Cell object to associate with this entry.
-//     */
-//    public void setCell(Cell cell) {
-//        this.cell = cell;
-//    }
-//
-//    /**
-//     * Checks if the current entry depends on another cell.
-//     *
-//     * @param other The other CellEntry to check dependency against.
-//     * @return True if this entry depends on the other, otherwise false.
-//     */
-//    public boolean dependsOn(CellEntry other) {
-//        if (this.cell == null || other == null || !Utils.isForm(this.cell.getData())) {
-//            return false; // If this cell or the other is not a formula, there is no dependency.
-//        }
-//        String formula = this.cell.getData().substring(1); // Remove '='.
-//        String otherCoordinates = other.toString(); // Get the string representation of the other cell (e.g., "B3").
-//        return formula.contains(otherCoordinates); // Check if the formula contains a reference to the other cell.
-//    }
-
