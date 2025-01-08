@@ -11,7 +11,7 @@ public class Ex2Sheet implements Sheet {
         this.height = height;
         this.table = new Cell[width][height];
 
-        // Initialize all cells to be empty
+        // initialize all cells to be empty
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 table[i][j] = new SCell(Ex2Utils.EMPTY_CELL);
@@ -42,11 +42,10 @@ public class Ex2Sheet implements Sheet {
     public void set(int x, int y, String c) {
         if (!isIn(x, y)) throw new IllegalArgumentException("Invalid cell coordinates");
 
-        // שימוש ב-convertCoordinatesToCellName להדפסת שם התא
         String cellName = convertCoordinatesToCellName(x, y);
 
         table[x][y] = new SCell(c);
-        eval(); // עדכון כל הגיליון לאחר הכנסת ערך חדש
+        eval(); // updating sheet
     }
 
 
@@ -59,8 +58,8 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public Cell get(String entry) {
-        int[] coords = parseCoordinates(entry); // תרגום שם התא לקואורדינטות
-        return get(coords[0], coords[1]);       // קריאה לפונקציה הקיימת get(int x, int y)
+        int[] coords = parseCoordinates(entry); // translate cell name to coordinates
+        return get(coords[0], coords[1]);       // calls to function  get(int x, int y)
     }
 
 
@@ -68,7 +67,7 @@ public class Ex2Sheet implements Sheet {
     public String value(int x, int y) {
         Cell cell = get(x, y);
         if (cell == null) return Ex2Utils.EMPTY_CELL;
-        return eval(x, y); // Evaluate the cell and return its value
+        return eval(x, y); // evaluate the cell and return its value
     }
 
     private Set<String> evaluatingCells = new HashSet<>();
@@ -77,48 +76,47 @@ public class Ex2Sheet implements Sheet {
     public String eval(int x, int y) {
         String cellName = convertCoordinatesToCellName(x, y);
 
-        // בדיקה למחזוריות (Cycle)
+        // checks cycle
         if (evaluatingCells.contains(cellName)) {
-//            System.out.println("Cycle detected in cell: " + cellName);
             Cell cell = get(x, y);
             if (cell != null) {
-                cell.setType(Ex2Utils.ERR_CYCLE_FORM); // הגדרת שגיאת מחזור
-                cell.setData(Ex2Utils.ERR_CYCLE); // עדכון הנתונים לשגיאת מחזור
+                cell.setType(Ex2Utils.ERR_CYCLE_FORM); // set cycle error
+                cell.setData(Ex2Utils.ERR_CYCLE); // updated data to cycle error
             }
-            return Ex2Utils.ERR_CYCLE; // החזרת ERR_CYCLE
+            return Ex2Utils.ERR_CYCLE;
         }
 
-        // הוספת התא למעקב תאים הנמצאים בהערכה
+        // add cell to track cells
         evaluatingCells.add(cellName);
 
-        // קבלת התא ובדיקת תקינותו
+        // recieving cell and check validations
         Cell cell = get(x, y);
         if (cell == null || cell.getData() == null || cell.getData().isEmpty()) {
-            evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+            evaluatingCells.remove(cellName);
             return Ex2Utils.EMPTY_CELL;
         }
 
-        // טיפול בנוסחאות
+        // dealing with formulas
         if (cell.getType() == Ex2Utils.FORM) {
             try {
                 String formula = cell.getData().substring(1).trim();
 
-                // חישוב הנוסחה
+                // calculate formula
                 double result = Utils.computeForm(cell.getData(), this);
 
-                cell.setType(Ex2Utils.FORM); // סימון כתא נוסחה תקין
-                evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+                cell.setType(Ex2Utils.FORM); // cell valid formula
+                evaluatingCells.remove(cellName);
                 return Double.toString(result);
             } catch (IllegalArgumentException e) {
                 cell.setType(Ex2Utils.ERR_FORM_FORMAT);
-                cell.setData(Ex2Utils.ERR_FORM); // עדכון הנתונים לשגיאת פורמולה
-                evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+                cell.setData(Ex2Utils.ERR_FORM);
+                evaluatingCells.remove(cellName);
                 return Ex2Utils.ERR_FORM;
             }
         }
 
-        // עבור תאים שאינם נוסחאות, החזרת הנתון הגולמי
-        evaluatingCells.remove(cellName); // הסרה מהסט לאחר סיום
+        // cells that are not formula returning their value
+        evaluatingCells.remove(cellName);
         return cell.getData();
     }
 
@@ -128,7 +126,7 @@ public class Ex2Sheet implements Sheet {
     public void eval() {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                eval(i, j); // Reevaluate each cell
+                eval(i, j); // reevaluate each cell
             }
         }
     }
@@ -150,17 +148,17 @@ public class Ex2Sheet implements Sheet {
         if (cell == null || cell.getType() != Ex2Utils.FORM) return 0;
 
         String cellKey = x + "," + y;
-        if (visited.contains(cellKey)) return -1; // Circular reference detected
+        if (visited.contains(cellKey)) return -1; // circular reference detected
 
         visited.add(cellKey);
-        String formula = cell.getData().substring(1); // Remove '=' from the formula
+        String formula = cell.getData().substring(1); // remove '=' from the formula
         int maxDepth = 0;
 
         for (String ref : formula.split("[^A-Za-z0-9]+")) {
             if (ref.matches("[A-Z][0-9]+")) {
                 int[] coords = parseCoordinates(ref);
                 int depth = computeDepth(coords[0], coords[1], visited);
-                if (depth == -1) return -1; // Propagate circular reference
+                if (depth == -1) return -1; // propagate circular reference
                 maxDepth = Math.max(maxDepth, depth);
             }
         }
@@ -202,7 +200,7 @@ public class Ex2Sheet implements Sheet {
                 }
             }
         }
-        eval(); // Recalculate after loading
+        eval(); // recalculate after loading
     }
 
     public int[] parseCoordinates(String cellRef) {
@@ -217,17 +215,17 @@ public class Ex2Sheet implements Sheet {
 
         String rowPart = cellRef.substring(1);
         try {
-            int row = Integer.parseInt(rowPart); // השורה היא החלק המספרי
-            int colIndex = col - 'A'; // העמודה מתורגמת לאינדקס
-            return new int[]{colIndex, row}; // מחזירים את הקואורדינטות בצורה [עמודה (x), שורה (y)]
+            int row = Integer.parseInt(rowPart); // row is the number
+            int colIndex = col - 'A'; //col translate to index
+            return new int[]{colIndex, row}; // coordinates [col (x), row (y)]
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid row in cell reference: " + cellRef);
         }
     }
 
     public static String convertCoordinatesToCellName(int x, int y) {
-        char column = (char) ('A' + x); // העמודה מתורגמת לפי x
-        return column + Integer.toString(y); // השורה מתורגמת לפי y
+        char column = (char) ('A' + x); // col is x
+        return column + Integer.toString(y); // row is y
     }
 
 }

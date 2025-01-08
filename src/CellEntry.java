@@ -3,9 +3,9 @@
  * Each entry is defined by a 2D index (x, y) and can be validated based on spreadsheet rules.
  */
 public class CellEntry implements Index2D {
-    private int x; // The x-coordinate (column index) of the cell.
-    private int y; // The y-coordinate (row index) of the cell.
-    private Cell cell; // The cell object associated with this entry.
+    private int x; // the x-coordinate (column index) of the cell.
+    private int y; // the y-coordinate (row index) of the cell.
+    private Cell cell; // the cell object associated with this entry.
 
 
     /**

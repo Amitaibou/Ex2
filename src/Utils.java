@@ -1,7 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -59,11 +55,11 @@ public class Utils {
             throw new IllegalArgumentException("Invalid formula: " + form);
         }
 
-        // הסרת ה- "=" מהפורמולה
+        // remove '='
         String formula = form.substring(1).trim();
 
         try {
-            // החלפת הפניות של תאים בערכים שלהם
+            // switching cells in their values
             String replacedFormula = replaceCellReferences(formula, sheet);
 
             double result = evalFormula(replacedFormula);
@@ -82,7 +78,7 @@ public class Utils {
         while (i < formula.length()) {
             char c = formula.charAt(i);
 
-            // זיהוי תאים עם אותיות (קטנות או גדולות)
+            // recognize cells with both lower cases and upper cases
             if (Character.isLetter(c)) {
                 int j = i;
                 while (j < formula.length() && Character.isLetterOrDigit(formula.charAt(j))) {
@@ -91,10 +87,10 @@ public class Utils {
 
                 String cellRef = formula.substring(i, j);
 
-                // המרת האות הראשונה לגדולה
+                // convert first letter to upper case
                 cellRef = cellRef.toUpperCase();
 
-                // תרגום הפניה לקואורדינטות והערכת הערך שלה
+                // evaulating coordinates to their cells
                 int[] coords = sheet.parseCoordinates(cellRef);
                 String cellValue = sheet.eval(coords[0], coords[1]);
 
