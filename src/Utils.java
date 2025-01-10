@@ -21,24 +21,11 @@ public class Utils {
         }
     }
 
-    // check if input is valid text
-    public static boolean isText(String input) {
-        if (input != null && !input.trim().isEmpty()) {
-            if (!input.startsWith("=")) // check if not a formula
-                return true;
-
-            if (input.matches(".*([+\\-*/]{2,}).*")) { // invalid consecutive operators
-                return false;
-            } else if (input.matches("[0-9.]+([+\\-*/][0-9.]+)*")) { // valid arithmetic text
-                return true;
-            } else if (input.matches("[A-Za-z0-9]+") && !isNumber(input) && !input.startsWith("=")) {
-                return false; // invalid alphanumeric input
-            }
-            return true; // fallback for valid text
-        } else {
-            return false; // input is null or empty
-        }
+    // check if input is valid text according to the assignment request
+    static boolean isText(String s) {
+        return !isNumber(s) && !isForm(s) && !s.startsWith("=");
     }
+
 
     // check if input is a valid formula
     public static boolean isForm(String input) {

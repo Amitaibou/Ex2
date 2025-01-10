@@ -49,7 +49,7 @@ public class SCell implements Cell {
         line = s; // assign the input to the line
 
         if (line == null || line.trim().isEmpty()) {
-            type = Ex2Utils.TEXT; // empty cell is considered text
+            type = Ex2Utils.TEXT; // if cell is empty its text
         } else if (Utils.isForm(s)) {
             type = Ex2Utils.FORM; // formula starts with '='
         } else if (Utils.isNumber(s)) {
