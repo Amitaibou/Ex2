@@ -178,7 +178,7 @@ public class Utils {
             if (isNumber(token)) {
                 values.push(Double.parseDouble(token)); // push numbers
             } else if (isOperator(token)) {
-                while (!operators.isEmpty() && hasPrecedence(token, operators.peek())) {
+                while (!operators.isEmpty() && hasPrecedence(token, operators.peek()) && !operators.peek().equals("(")) {
                     double b = values.pop();
                     double a = values.pop();
                     String op = operators.pop();

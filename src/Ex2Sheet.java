@@ -91,7 +91,7 @@ public class Ex2Sheet implements Sheet {
         }
         evaluatingCells.add(cellName); // mark the cell as being evaluated
 
-        if (cell == null || cell.getData().isEmpty()) {
+        if (cell == null || cell.getData() == null || cell.getData().isEmpty()) {
             evaluatingCells.remove(cellName); // remove the cell from evaluation tracking
             return Ex2Utils.EMPTY_CELL; // return empty value
         }
@@ -149,7 +149,7 @@ public class Ex2Sheet implements Sheet {
     private int computeDepth(int x, int y, Set<String> visited) {
         if (!isIn(x, y)) return 0;
         Cell cell = get(x, y);
-        if (cell == null || cell.getType() != Ex2Utils.FORM) return 0;
+        if (cell.getData() == null || cell.getType() != Ex2Utils.FORM) return 0;
 
         String cellKey = x + "," + y;
         if (visited.contains(cellKey)) return -1; // detect circular references

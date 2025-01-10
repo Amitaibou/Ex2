@@ -38,4 +38,6 @@ public interface Cell {
      * @param t
      */
     public void setOrder(int t);
+
+    public void setError(String error);
 }
