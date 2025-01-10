@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -7,64 +6,71 @@ import java.util.Stack;
 public class Utils {
     public Utils() {
     }
-    // check if is number
+
+    // check if input is a valid number
     public static boolean isNumber(String input) {
         if (input != null && !input.trim().isEmpty()) {
             try {
-                Double.parseDouble(input);
-                return true;
+                Double.parseDouble(input); // try to parse input as a double
+                return true; // valid number
             } catch (NumberFormatException var2) {
-                return false;
+                return false; // not a number
             }
         } else {
-            return false;
+            return false; // input is null or empty
         }
     }
-    // check if is text and convert it to string
+
+    // check if input is valid text
     public static boolean isText(String input) {
         if (input != null && !input.trim().isEmpty()) {
-            if (!input.startsWith("="))
+            if (!input.startsWith("=")) // check if not a formula
                 return true;
-            if(input.matches(".*([+\\-*/]{2,}).*")) {
+
+            if (input.matches(".*([+\\-*/]{2,}).*")) { // invalid consecutive operators
                 return false;
-            } else if (input.matches("[0-9.]+([+\\-*/][0-9.]+)*")) {
+            } else if (input.matches("[0-9.]+([+\\-*/][0-9.]+)*")) { // valid arithmetic text
                 return true;
-            } else if(input.matches("[A-Za-z0-9]+") && !isNumber(input) && !input.startsWith("="))
-                return false;
-            return true;
+            } else if (input.matches("[A-Za-z0-9]+") && !isNumber(input) && !input.startsWith("=")) {
+                return false; // invalid alphanumeric input
+            }
+            return true; // fallback for valid text
         } else {
-            return false;
+            return false; // input is null or empty
         }
     }
-    // checks if is formula or not
+
+    // check if input is a valid formula
     public static boolean isForm(String input) {
         if (input != null && input.startsWith("=")) {
-            String formula = input.substring(1).trim();
+            String formula = input.substring(1).trim(); // remove '=' from formula
+
+            // check if parentheses are balanced
             if (!areParenthesesBalanced(formula)) {
-                return false;
-            } else if (formula.matches(".*([+\\-*/]{2,}).*")) {
+                return false; // unbalanced parentheses
+            } else if (formula.matches(".*([+\\-*/]{2,}).*")) { // invalid operator sequences
                 return false;
             } else {
-                return !formula.isEmpty();
+                return !formula.isEmpty(); // valid if not empty
             }
         } else {
-            return false;
+            return false; // input is not a formula
         }
     }
-    // calculate formulas
+
+    // compute the result of a formula
     public static double computeForm(String form, Ex2Sheet sheet) {
         if (form == null || !form.startsWith("=")) {
             throw new IllegalArgumentException("Invalid formula: " + form);
         }
 
-        // remove '='
+        // remove '=' from formula
         String formula = form.substring(1).trim();
 
         try {
-            // switching cells in their values
+            // replace cell references (like A1) with actual values
             String replacedFormula = replaceCellReferences(formula, sheet);
-            double result = evalFormula(replacedFormula);
-
+            double result = evalFormula(replacedFormula); // evaluate the formula
             return result;
         } catch (Exception e) {
             System.err.println("Error in formula computation: " + e.getMessage());
@@ -72,6 +78,7 @@ public class Utils {
         }
     }
 
+    // replace cell references (e.g., A1) with actual cell values
     public static String replaceCellReferences(String formula, Ex2Sheet sheet) {
         StringBuilder result = new StringBuilder();
         int i = 0;
@@ -79,70 +86,65 @@ public class Utils {
         while (i < formula.length()) {
             char c = formula.charAt(i);
 
-            // recognize cells with both lower cases and upper cases
+            // handle cell references like A1, B2
             if (Character.isLetter(c)) {
                 int j = i;
                 while (j < formula.length() && Character.isLetterOrDigit(formula.charAt(j))) {
                     j++;
                 }
 
-                String cellRef = formula.substring(i, j);
+                String cellRef = formula.substring(i, j); // extract cell reference
+                cellRef = cellRef.toUpperCase(); // ensure uppercase for consistency
 
-                // convert first letter to upper case
-                cellRef = cellRef.toUpperCase();
-
-                // evaulating coordinates to their cells
-                int[] coords = sheet.parseCoordinates(cellRef);
-                String cellValue = sheet.eval(coords[0], coords[1]);
+                int[] coords = sheet.parseCoordinates(cellRef); // get cell coordinates
+                String cellValue = sheet.eval(coords[0], coords[1]); // evaluate the cell value
 
                 if (cellValue == null || cellValue.trim().isEmpty()) {
                     throw new IllegalArgumentException("Formula contains a reference to an empty cell: " + cellRef);
                 }
 
-                result.append(cellValue);
+                result.append(cellValue); // append the cell value
                 i = j;
             } else {
-                result.append(c);
+                result.append(c); // append non-cell characters
                 i++;
             }
         }
 
-        return result.toString();
+        return result.toString(); // return formula with replaced values
     }
 
-    // checks legit use of parentheses
+    // check if parentheses in formula are balanced
     public static boolean areParenthesesBalanced(String formula) {
         int count = 0;
-        char[] var2 = formula.toCharArray();
-        int var3 = var2.length;
-
-        for (int var4 = 0; var4 < var3; ++var4) {
-            char c = var2[var4];
+        for (char c : formula.toCharArray()) {
             if (c == '(') {
-                ++count;
+                count++;
             } else if (c == ')') {
-                --count;
+                count--;
             }
 
-            if (count < 0) {
+            if (count < 0) { // more closing parentheses than opening
                 return false;
             }
         }
 
-        return count == 0;
+        return count == 0; // balanced if count is zero
     }
 
+    // evaluate a formula as a string
     public static double evalFormula(String formula) {
         formula = formula.trim();
 
         try {
-            List<String> tokens = tokenizeFormula(formula);
-            return evaluateTokens(tokens);
-        } catch (Exception var2) {
+            List<String> tokens = tokenizeFormula(formula); // split formula into tokens
+            return evaluateTokens(tokens); // evaluate tokenized formula
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid formula: " + formula);
         }
     }
 
+    // split formula into tokens (numbers, operators, etc.)
     private static List<String> tokenizeFormula(String formula) {
         List<String> tokens = new ArrayList<>();
         StringBuilder numberBuffer = new StringBuilder();
@@ -150,68 +152,63 @@ public class Utils {
         for (int i = 0; i < formula.length(); ++i) {
             char c = formula.charAt(i);
 
-            // If the character is a digit or a decimal point, add it to the number buffer
             if (Character.isDigit(c) || c == '.') {
-                numberBuffer.append(c);
+                numberBuffer.append(c); // append digits or decimals to buffer
             } else {
-                // Handle negative numbers and multiplication by negative numbers
                 if (c == '-' && (tokens.isEmpty() || isOperator(tokens.get(tokens.size() - 1)) || tokens.get(tokens.size() - 1).equals("("))) {
-                    numberBuffer.append(c); // Treat as part of a negative number
+                    numberBuffer.append(c); // handle negative numbers
                 } else {
-                    // If we encounter an operator or other character, flush the number buffer
                     if (numberBuffer.length() > 0) {
-                        tokens.add(numberBuffer.toString());
+                        tokens.add(numberBuffer.toString()); // add number to tokens
                         numberBuffer.setLength(0);
                     }
 
-                    // Add the current character as a token (operator, parentheses, etc.)
                     if (!Character.isWhitespace(c)) {
-                        tokens.add(Character.toString(c));
+                        tokens.add(Character.toString(c)); // add operator or parentheses
                     }
                 }
             }
         }
 
-        // Add the last number in the buffer as a token
         if (numberBuffer.length() > 0) {
-            tokens.add(numberBuffer.toString());
+            tokens.add(numberBuffer.toString()); // add the last number
         }
 
         return tokens;
     }
 
+    // check if token is an operator
     private static boolean isOperator(String token) {
         return token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/");
     }
 
-
-
+    // evaluate tokens using stacks
     private static double evaluateTokens(List<String> tokens) {
         Stack<Double> values = new Stack<>();
         Stack<String> operators = new Stack<>();
 
         for (String token : tokens) {
             if (isNumber(token)) {
-                values.push(Double.parseDouble(token));
+                values.push(Double.parseDouble(token)); // push numbers
             } else if (isOperator(token)) {
                 while (!operators.isEmpty() && hasPrecedence(token, operators.peek())) {
                     double b = values.pop();
                     double a = values.pop();
                     String op = operators.pop();
-                    values.push(applyOperator(a, b, op));
+                    values.push(applyOperator(a, b, op)); // apply operator
                 }
-                operators.push(token);
+                operators.push(token); // push current operator
             } else if (token.equals("(")) {
-                operators.push(token);
+                operators.push(token); // push opening parenthesis
             } else if (token.equals(")")) {
                 while (!operators.isEmpty() && !operators.peek().equals("(")) {
                     double b = values.pop();
                     double a = values.pop();
                     String op = operators.pop();
-                    values.push(applyOperator(a, b, op));
+                    values.push(applyOperator(a, b, op)); // apply operator
                 }
                 if (!operators.isEmpty() && operators.peek().equals("(")) {
-                    operators.pop();
+                    operators.pop(); // pop opening parenthesis
                 }
             } else {
                 throw new IllegalArgumentException("Invalid token: " + token);
@@ -222,12 +219,13 @@ public class Utils {
             double b = values.pop();
             double a = values.pop();
             String op = operators.pop();
-            values.push(applyOperator(a, b, op));
+            values.push(applyOperator(a, b, op)); // final operation
         }
 
-        return values.pop();
+        return values.pop(); // final result
     }
 
+    // apply operator to two numbers
     private static double applyOperator(double a, double b, String operator) {
         switch (operator) {
             case "+":
@@ -238,7 +236,7 @@ public class Utils {
                 return a * b;
             case "/":
                 if (b == 0) {
-                    return Double.POSITIVE_INFINITY; // Handle division by zero
+                    return Double.POSITIVE_INFINITY; // handle division by zero
                 }
                 return a / b;
             default:
@@ -246,62 +244,11 @@ public class Utils {
         }
     }
 
+    // check operator precedence
     private static boolean hasPrecedence(String op1, String op2) {
         if ((op1.equals("*") || op1.equals("/")) && (op2.equals("+") || op2.equals("-"))) {
             return false;
         }
         return true;
-    }
-
-
-    private static boolean isOperator(char c) {
-        return c == '+' || c == '-' || c == '*' || c == '/';
-    }
-
-    private static int precedence(char operator) {
-        switch (operator) {
-            case '*':
-            case '/':
-                return 2;
-            case '+':
-            case '-':
-                return 1;
-            case ',':
-            case '.':
-            default:
-                return -1;
-        }
-    }
-
-    private static void processTopOperator(Stack<Double> numbers, Stack<Character> operators) {
-        if (numbers.size() < 2) {
-            throw new IllegalArgumentException("Invalid formula: missing operands.");
-        } else {
-            double b = (Double) numbers.pop();
-            double a = (Double) numbers.pop();
-            char op = (Character) operators.pop();
-            numbers.push(applyOperator(op, a, b));
-        }
-    }
-
-    private static double applyOperator(char operator, double left, double right) {
-        switch (operator) {
-            case '*':
-                return left * right;
-            case '+':
-                return left + right;
-            case ',':
-            case '.':
-            default:
-                throw new IllegalArgumentException("Unknown operator: " + operator);
-            case '-':
-                return left - right;
-            case '/':
-                if (right == 0.0) {
-                    throw new ArithmeticException("Division by zero is not allowed");
-                } else {
-                    return left / right;
-                }
-        }
     }
 }
