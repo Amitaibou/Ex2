@@ -49,18 +49,23 @@ public class SCell implements Cell {
         if (s == null || s.trim().isEmpty()) {
             type = Ex2Utils.TEXT; // if cell is empty its text
             line = Ex2Utils.EMPTY_CELL;
+            setError("");
         } else if (Utils.isForm(s)) {
             type = Ex2Utils.FORM; // formula starts with '='
             line = s;
-        } else if (!Utils.isForm(s) && s.startsWith("=")){
+            setError("");
+        } else if (!Utils.isForm(s) && s.startsWith("=")) {
             type = Ex2Utils.ERR_FORM_FORMAT;
-            line = Ex2Utils.ERR_FORM;
+            line = s;
+            setError(Ex2Utils.ERR_FORM);
         } else if (Utils.isNumber(s)) {
             type = Ex2Utils.NUMBER; // cell contains a valid number
             line = Double.valueOf(s).toString();
+            setError("");
         } else if (Utils.isText(s)) {
             type = Ex2Utils.TEXT; // valid text content
             line = s;
+            setError("");
         } else {
             type = Ex2Utils.ERR_FORM_FORMAT; // invalid format
             setError(Ex2Utils.ERR_FORM); // set error message
@@ -73,7 +78,7 @@ public class SCell implements Cell {
     // return the data of the cell; prioritize error message if it exists
     @Override
     public String getData() {
-        if(err != null) return err == line ? err : line;
+        if(err != "") return err;
         return line;
     }
 

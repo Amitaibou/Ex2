@@ -29,6 +29,7 @@ public class Utils {
 
     // check if input is a valid formula
     public static boolean isForm(String input) {
+        String dontAllowedCharacters = "!@#$%^&";
         if (input != null && input.startsWith("=")) {
             String formula = input.substring(1).trim(); // remove '=' from formula
 
@@ -38,6 +39,9 @@ public class Utils {
             } else if (formula.matches(".*([+\\-*/]{2,}).*")) { // invalid operator sequences
                 return false;
             } else {
+                for(char c: dontAllowedCharacters.toCharArray()){
+                    if(input.contains(c +"")) return false;
+                }
                 return !formula.isEmpty(); // valid if not empty
             }
         } else {
