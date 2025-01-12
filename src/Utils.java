@@ -63,6 +63,7 @@ public class Utils {
         return true;
 
     }
+
     // check if input is a valid formula
     public static boolean isForm(String input, Ex2Sheet ex2Sheet) {
         List<String> destCells = extractCellReferences(input);
@@ -121,6 +122,7 @@ public class Utils {
         if (currentReference.length() > 0) {
             cellReferences.add(currentReference.toString());
         }
+        cellReferences.replaceAll(String::toUpperCase);
 
         return cellReferences;
     }

@@ -16,7 +16,7 @@ public class Ex2Sheet implements Sheet {
         // initialize all cells with empty content
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                table[i][j] = new SCell(Ex2Utils.EMPTY_CELL, this);
+                table[i][j] = new SCell(Ex2Utils.EMPTY_CELL, this, convertCoordinatesToCellName(i,j));
             }
         }
     }
@@ -48,7 +48,7 @@ public class Ex2Sheet implements Sheet {
         String cellName = convertCoordinatesToCellName(x, y);
         System.out.println("Updating cell " + cellName + " with value: " + c);
 
-        table[x][y] = new SCell(c, this); // update the cell content
+        table[x][y] = new SCell(c, this, convertCoordinatesToCellName(x,y)); // update the cell content
         eval(); // reevaluate all cells in the sheet
     }
 
@@ -85,6 +85,10 @@ public class Ex2Sheet implements Sheet {
         Cell cell = get(x, y);
         String cellName = convertCoordinatesToCellName(x, y);
 
+        if (cellName.equals(cell.getLine())) {
+            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+            return Ex2Utils.ERR_CYCLE;
+        }
 
 
         // check for circular references
@@ -93,7 +97,7 @@ public class Ex2Sheet implements Sheet {
             return Ex2Utils.ERR_FORM; // return cycle error
         }
 
-        if (evaluatingCells.contains(cellName)) { // Detect cyclic dependencies.
+        if (evaluatingCells.contains(cell.getLine())) { // Detect cyclic dependencies.
             cell.setType(Ex2Utils.ERR_CYCLE_FORM);
             return Ex2Utils.ERR_CYCLE;
         }
