@@ -6,13 +6,16 @@ public class SCell implements Cell {
     private String line; // the content of the cell
     private int type; // the type of the cell (TEXT, NUMBER, FORM,...)
     private int order; // the evaluation order of the cell
-    private String err = ""; // error message for the cell
+    private String err = "";// error message for the cell
+    private Ex2Sheet ex2Sheet;
 
     // constructor to initialize the cell with a given value
-    public SCell(String s) {
+    public SCell(String s, Ex2Sheet ex2Sheet) {
         //setError(s); // set error message
+        this.ex2Sheet = ex2Sheet;
         setData(s); // set the content of the cell
         setOrder(0); // default order is 0
+
     }
 
     // set the error message for the cell
@@ -50,13 +53,15 @@ public class SCell implements Cell {
             type = Ex2Utils.TEXT; // if cell is empty its text
             line = Ex2Utils.EMPTY_CELL;
             setError("");
-        } else if (Utils.isForm(s)) {
+        } else if (Utils.isForm(s, ex2Sheet)) {
             type = Ex2Utils.FORM; // formula starts with '='
             line = s;
             setError("");
-        } else if (!Utils.isForm(s) && s.startsWith("=")) {
+        } else if (!Utils.isForm(s,ex2Sheet) && s.startsWith("=")) {
+
             type = Ex2Utils.ERR_FORM_FORMAT;
             line = s;
+
             setError(Ex2Utils.ERR_FORM);
         } else if (Utils.isNumber(s)) {
             type = Ex2Utils.NUMBER; // cell contains a valid number
@@ -70,6 +75,8 @@ public class SCell implements Cell {
             type = Ex2Utils.ERR_FORM_FORMAT; // invalid format
             setError(Ex2Utils.ERR_FORM); // set error message
         }
+
+
     }
 
 
@@ -99,4 +106,6 @@ public class SCell implements Cell {
     public void setOrder(int t) {
         order = t;
     }
+
+
 }

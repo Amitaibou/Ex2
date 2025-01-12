@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 
+
 public class Ex2Sheet implements Sheet {
     private Cell[][] table;
     private int width;
@@ -15,7 +16,7 @@ public class Ex2Sheet implements Sheet {
         // initialize all cells with empty content
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                table[i][j] = new SCell(Ex2Utils.EMPTY_CELL);
+                table[i][j] = new SCell(Ex2Utils.EMPTY_CELL, this);
             }
         }
     }
@@ -43,11 +44,11 @@ public class Ex2Sheet implements Sheet {
     public void set(int x, int y, String c) {
         if (!isIn(x, y)) throw new IllegalArgumentException("Invalid cell coordinates");
 
-        // שימוש ב-convertCoordinatesToCellName להדפסת שם התא
+        // using convertCoordinatesToCellName
         String cellName = convertCoordinatesToCellName(x, y);
         System.out.println("Updating cell " + cellName + " with value: " + c);
 
-        table[x][y] = new SCell(c); // update the cell content
+        table[x][y] = new SCell(c, this); // update the cell content
         eval(); // reevaluate all cells in the sheet
     }
 
@@ -84,11 +85,20 @@ public class Ex2Sheet implements Sheet {
         Cell cell = get(x, y);
         String cellName = convertCoordinatesToCellName(x, y);
 
+
+
         // check for circular references
-        if (evaluatingCells.contains(cellName)) {
-            cell.setType(Ex2Utils.ERR_CYCLE_FORM); // set the cell type to cycle error
-            return Ex2Utils.ERR_CYCLE; // return cycle error
+        if (!cell.getLine().isEmpty() && cellName.contains(cell.getLine())) {
+            cell.setType(Ex2Utils.ERR_FORM_FORMAT); // set the cell type to cycle error
+            return Ex2Utils.ERR_FORM; // return cycle error
         }
+
+        if (evaluatingCells.contains(cellName)) { // Detect cyclic dependencies.
+            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+            return Ex2Utils.ERR_CYCLE;
+        }
+
+
         evaluatingCells.add(cellName); // mark the cell as being evaluated
 
         if (cell == null || cell.getData() == null || cell.getData().isEmpty()) {
@@ -117,7 +127,8 @@ public class Ex2Sheet implements Sheet {
         if (get(cellName) != cell) {
             System.out.println("Invalid formula in cell " + cellName);
             cell.setType(Ex2Utils.ERR_FORM_FORMAT); // set the type to formula format error
-            cell.setData(Ex2Utils.ERR_FORM); // set the cell content to error
+            cell.setData(Ex2Utils.ERR_FORM);// set the cell content to error
+
             evaluatingCells.remove(cellName); // remove from evaluation tracking
         }
     }

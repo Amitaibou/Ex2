@@ -3,7 +3,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+
 public class Utils {
+
+
     public Utils() {
     }
 
@@ -29,7 +32,8 @@ public class Utils {
 
     // check if input is a valid formula
     public static boolean isForm(String input) {
-        String dontAllowedCharacters = "!@#$%^&";
+
+        String dontAllowedCharacters = "!@#$%^&?";
         if (input != null && input.startsWith("=")) {
             String formula = input.substring(1).trim(); // remove '=' from formula
 
@@ -47,7 +51,81 @@ public class Utils {
         } else {
             return false; // input is not a formula
         }
+
     }
+
+    public static boolean isValidCell(String cell, Ex2Sheet ex2Sheet){
+        try{
+            ex2Sheet.parseCoordinates(cell);
+        }catch (Exception e){
+            return false;
+        }
+        return true;
+
+    }
+    // check if input is a valid formula
+    public static boolean isForm(String input, Ex2Sheet ex2Sheet) {
+        List<String> destCells = extractCellReferences(input);
+        for ( String cell : destCells){
+            if(isValidCell(cell, ex2Sheet)) {
+                String eval = ex2Sheet.eval(ex2Sheet.parseCoordinates(cell)[0], ex2Sheet.parseCoordinates(cell)[1]);
+                if (eval.equals(Ex2Utils.EMPTY_CELL)) {
+                    return false;
+                } else if (eval.equals(Ex2Utils.ERR_CYCLE)) {
+                    return false;
+                }
+            }
+        }
+
+        String dontAllowedCharacters = "!@#$%^&?";
+        if (input != null && input.startsWith("=")) {
+            String formula = input.substring(1).trim(); // remove '=' from formula
+
+            // check if parentheses are balanced
+            if (!areParenthesesBalanced(formula)) {
+                return false; // unbalanced parentheses
+            } else if (formula.matches(".*([+\\-*/]{2,}).*")) { // invalid operator sequences
+                return false;
+            } else {
+                for(char c: dontAllowedCharacters.toCharArray()){
+                    if(input.contains(c +"")) return false;
+                }
+                return !formula.isEmpty(); // valid if not empty
+            }
+        } else {
+            return false; // input is not a formula
+        }
+
+    }
+
+
+
+    public static List<String> extractCellReferences(String formula) {
+        List<String> cellReferences = new ArrayList<>();
+        StringBuilder currentReference = new StringBuilder();
+
+        for (char ch : formula.toCharArray()) {
+            // Add letters or digits to the current reference
+            if (Character.isLetter(ch) || Character.isDigit(ch)) {
+                currentReference.append(ch);
+            } else {
+                // If we hit a non-alphanumeric character, save the current reference
+                if (currentReference.length() > 0) {
+                    cellReferences.add(currentReference.toString());
+                    currentReference.setLength(0); // Reset for the next reference
+                }
+            }
+        }
+
+        // Add the last reference if there is any
+        if (currentReference.length() > 0) {
+            cellReferences.add(currentReference.toString());
+        }
+
+        return cellReferences;
+    }
+
+
 
     // compute the result of a formula
     public static double computeForm(String form, Ex2Sheet sheet) {
