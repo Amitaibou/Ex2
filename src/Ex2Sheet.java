@@ -85,11 +85,6 @@ public class Ex2Sheet implements Sheet {
         Cell cell = get(x, y);
         String cellName = convertCoordinatesToCellName(x, y);
 
-        if (cellName.equals(cell.getLine())) {
-            cell.setType(Ex2Utils.ERR_FORM_FORMAT);
-            return Ex2Utils.ERR_CYCLE;
-        }
-
 
 
         // check for circular references
