@@ -85,45 +85,57 @@ public class Ex2Sheet implements Sheet {
         Cell cell = get(x, y);
         String cellName = convertCoordinatesToCellName(x, y);
 
-        if (cellName.equals(cell.getLine())) {
-            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
-            return Ex2Utils.ERR_CYCLE;
-        }
-
-
         // check for circular references
-        if (!cell.getLine().isEmpty() && cellName.contains(cell.getLine())) {
-            cell.setType(Ex2Utils.ERR_FORM_FORMAT); // set the cell type to cycle error
-            return Ex2Utils.ERR_FORM; // return cycle error
-        }
-
-        if (evaluatingCells.contains(cell.getLine())) { // Detect cyclic dependencies.
-            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+        if (!cell.getLine().isEmpty() && cellName.equalsIgnoreCase(cell.getLine().trim())) {
+            cell.setType(Ex2Utils.ERR_CYCLE_FORM); // set the type to circular reference error
             return Ex2Utils.ERR_CYCLE;
         }
 
+        // check for general circular dependencies
+        if (evaluatingCells.contains(cellName)) {
+            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+            return Ex2Utils.ERR_CYCLE;
+        }
 
         evaluatingCells.add(cellName); // mark the cell as being evaluated
 
+        // check if the cell is empty
         if (cell == null || cell.getData() == null || cell.getData().isEmpty()) {
-            evaluatingCells.remove(cellName); // remove the cell from evaluation tracking
-            return Ex2Utils.EMPTY_CELL; // return empty value
+            evaluatingCells.remove(cellName);
+            return Ex2Utils.EMPTY_CELL;
         }
 
-        // if the cell contains a formula, calculate its value
+        // handle formula evaluation
         if (cell.getType() == Ex2Utils.FORM) {
             try {
-                double result = Utils.computeForm(cell.getData(), this); // calculate the formula
-                evaluatingCells.remove(cellName);  // remove from tracking
-                return Double.toString(result); // return the result as string
+                String formula = cell.getData().substring(1).trim(); // remove '=' from the formula
+                List<String> cellRefs = Utils.extractCellReferences(formula);
+
+                // check for invalid references
+                for (String ref : cellRefs) {
+                    int[] coords = parseCoordinates(ref); // parse coordinates of the reference
+                    if (!isIn(coords[0], coords[1])) { // check if the reference is out of bounds
+                        cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+                        cell.setData(Ex2Utils.ERR_FORM);
+                        evaluatingCells.remove(cellName);
+                        return Ex2Utils.ERR_FORM;
+                    }
+                }
+
+                String replacedFormula = Utils.replaceCellReferences(formula, this); // replace references with values
+                double result = Utils.evalFormula(replacedFormula); // evaluate the formula
+                evaluatingCells.remove(cellName);
+                return Double.toString(result);
             } catch (IllegalArgumentException e) {
                 handleInvalidFormula(cell, cellName); // handle invalid formulas
-                return Ex2Utils.ERR_FORM; // return formula error
+                return Ex2Utils.ERR_FORM;
             }
         }
+
         evaluatingCells.remove(cellName); // remove from tracking after processing
         return cell.getData(); // return raw data for non-formula cells
     }
+
 
 
     // handle invalid formulas

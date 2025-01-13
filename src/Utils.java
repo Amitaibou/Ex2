@@ -66,37 +66,56 @@ public class Utils {
 
     // check if input is a valid formula
     public static boolean isForm(String input, Ex2Sheet ex2Sheet) {
-        List<String> destCells = extractCellReferences(input);
-        for ( String cell : destCells){
-            if(isValidCell(cell, ex2Sheet)) {
-                String eval = ex2Sheet.eval(ex2Sheet.parseCoordinates(cell)[0], ex2Sheet.parseCoordinates(cell)[1]);
-                if (eval.equals(Ex2Utils.EMPTY_CELL)) {
-                    return false;
-                } else if (eval.equals(Ex2Utils.ERR_CYCLE)) {
-                    return false;
-                }
-            }
-        }
-
-        String dontAllowedCharacters = "!@#$%^&?";
-        if (input != null && input.startsWith("=")) {
-            String formula = input.substring(1).trim(); // remove '=' from formula
-
-            // check if parentheses are balanced
-            if (!areParenthesesBalanced(formula)) {
-                return false; // unbalanced parentheses
-            } else if (formula.matches(".*([+\\-*/]{2,}).*")) { // invalid operator sequences
-                return false;
-            } else {
-                for(char c: dontAllowedCharacters.toCharArray()){
-                    if(input.contains(c +"")) return false;
-                }
-                return !formula.isEmpty(); // valid if not empty
-            }
-        } else {
+        if (input == null || !input.startsWith("=")) {
             return false; // input is not a formula
         }
 
+        String formula = input.substring(1).trim(); // remove '=' from formula
+        if (formula.isEmpty()) {
+            return false; // invalid formula (e.g., "=")
+        }
+
+        // check for invalid characters
+        String dontAllowedCharacters = ";{}~!@#$%^&?";
+        for (char c : dontAllowedCharacters.toCharArray()) {
+            if (input.contains(c + "")) {
+                return false; // contains invalid characters
+            }
+        }
+
+        // check if parentheses are balanced
+        if (!areParenthesesBalanced(formula)) {
+            return false; // unbalanced parentheses
+        }
+
+        // check for invalid operator sequences
+        if (formula.matches(".*([+\\-*/]{2,}).*")) {
+            return false; // invalid operator sequences
+        }
+
+        // validate all cell references in the formula
+        List<String> destCells = extractCellReferences(formula);
+        for (String cell : destCells) {
+            if (!isValidCell(cell, ex2Sheet)) {
+                return false; // invalid cell reference
+            }
+
+            // check the state of the referenced cell
+            try {
+                int[] coords = ex2Sheet.parseCoordinates(cell); // parse the cell reference
+                String eval = ex2Sheet.eval(coords[0], coords[1]); // evaluate the referenced cell
+
+                if (eval.equals(Ex2Utils.EMPTY_CELL)) {
+                    return false; // referencing an empty cell
+                } else if (eval.equals(Ex2Utils.ERR_CYCLE)) {
+                    return false; // referencing a cell with a circular dependency
+                }
+            } catch (IllegalArgumentException e) {
+                return false; // invalid cell reference format
+            }
+        }
+
+        return true; // valid formula
     }
 
 
@@ -106,26 +125,35 @@ public class Utils {
         StringBuilder currentReference = new StringBuilder();
 
         for (char ch : formula.toCharArray()) {
-            // Add letters or digits to the current reference
+            // append letters or digits to the current reference
             if (Character.isLetter(ch) || Character.isDigit(ch)) {
                 currentReference.append(ch);
             } else {
-                // If we hit a non-alphanumeric character, save the current reference
+                // if we hit a non-alphanumeric character, save the current reference
                 if (currentReference.length() > 0) {
-                    cellReferences.add(currentReference.toString());
-                    currentReference.setLength(0); // Reset for the next reference
+                    String ref = currentReference.toString();
+
+                    // verify the reference is valid (e.g., not a number)
+                    if (!Utils.isNumber(ref)) {
+                        cellReferences.add(ref.toUpperCase());
+                    }
+
+                    currentReference.setLength(0); // reset for the next reference
                 }
             }
         }
 
-        // Add the last reference if there is any
+        // add the last reference if there is any
         if (currentReference.length() > 0) {
-            cellReferences.add(currentReference.toString());
+            String ref = currentReference.toString();
+            if (!Utils.isNumber(ref)) {
+                cellReferences.add(ref.toUpperCase());
+            }
         }
-        cellReferences.replaceAll(String::toUpperCase);
 
         return cellReferences;
     }
+
 
 
 

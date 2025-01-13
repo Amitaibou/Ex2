@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * Represents a single cell in the spreadsheet.
  * Each cell can contain a string, a number, or a formula.
@@ -8,11 +10,13 @@ public class SCell implements Cell {
     private int order; // the evaluation order of the cell
     private String err = "";// error message for the cell
     private Ex2Sheet ex2Sheet;
+    private String cellName;
 
     // constructor to initialize the cell with a given value
-    public SCell(String s, Ex2Sheet ex2Sheet) {
+    public SCell(String s, Ex2Sheet ex2Sheet, String cellName) {
         //setError(s); // set error message
         this.ex2Sheet = ex2Sheet;
+        this.cellName = cellName;
         setData(s); // set the content of the cell
         setOrder(0); // default order is 0
 
@@ -53,17 +57,62 @@ public class SCell implements Cell {
             type = Ex2Utils.TEXT; // if cell is empty its text
             line = Ex2Utils.EMPTY_CELL;
             setError("");
+
         } else if (Utils.isForm(s, ex2Sheet)) {
-            type = Ex2Utils.FORM; // formula starts with '='
+            //a0: 9 -> =b0+c8+y6
+            //b0: a0+p9+k7
+            List<String> cells = Utils.extractCellReferences(s);
+            if (!cells.isEmpty()) {
+
+                for (String cell : cells) {
+                    Cell c = ex2Sheet.get(cell);
+                    List<String> destCells = Utils.extractCellReferences(c.getData());
+                    for (String destCell : destCells) {
+                        if (this.cellName == destCell) {
+                            type = Ex2Utils.ERR_CYCLE_FORM;
+                            setError(Ex2Utils.ERR_CYCLE);
+                            break;
+                        } else {
+                            type = Ex2Utils.FORM; // formula starts with '='
+                            setError("");
+
+                        }
+                    }
+
+                }
+            } else {
+                type = Ex2Utils.FORM; // formula starts with '='
+                setError("");
+            }
             line = s;
-            setError("");
+
         } else if (!Utils.isForm(s,ex2Sheet) && s.startsWith("=")) {
+            List<String> cells  = Utils.extractCellReferences(s);
+            if (!cells.isEmpty()) {
+                for (String cell : cells) {
+                    if (this.cellName.equals(cell)) {
+                        type = Ex2Utils.ERR_CYCLE_FORM;
+                        setError(Ex2Utils.ERR_CYCLE);
 
-            type = Ex2Utils.ERR_FORM_FORMAT;
+                    }
+                    else {
+                        type = Ex2Utils.ERR_FORM_FORMAT;
+                        setError(Ex2Utils.ERR_FORM);
+
+                    }
+                }
+            }
+            else {
+                type = Ex2Utils.ERR_FORM_FORMAT;
+                setError(Ex2Utils.ERR_FORM);
+
+            }
             line = s;
 
-            setError(Ex2Utils.ERR_FORM);
-        } else if (Utils.isNumber(s)) {
+        }
+
+
+        else if (Utils.isNumber(s)) {
             type = Ex2Utils.NUMBER; // cell contains a valid number
             line = Double.valueOf(s).toString();
             setError("");
@@ -72,8 +121,9 @@ public class SCell implements Cell {
             line = s;
             setError("");
         } else {
-            type = Ex2Utils.ERR_FORM_FORMAT; // invalid format
-            setError(Ex2Utils.ERR_FORM); // set error message
+            type = Ex2Utils.ERR_CYCLE_FORM;// invalid format
+            line = s ;
+            setError(Ex2Utils.ERR_CYCLE); // set error message
         }
 
 
