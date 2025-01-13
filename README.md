@@ -17,22 +17,14 @@ Welcome to the **Ex2 Spreadsheet Application**! This project is a robust Java-ba
 
 ## 🚀 How to Use
 
-### Option 1: Run via JAR File
-1. Clone the repository:
-   ```bash
-https://github.com/Amitaibou/Ex2.git   ```
-2. Execute the JAR file:
-   ```bash
-   java -jar Ex2Spreadsheet.jar
-   ```
-
 ### Option 2: Run via IntelliJ IDEA
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/Ex2Spreadsheet
+   git clone https://github.com/Amitaibou/Ex2.git   ```
+
    ```
 2. Open the project in IntelliJ IDEA.
-3. Run the `Main` class under the `Ex2.Main` package.
+3. Run the `Main` class under the `Ex2GUI` package.
 
 ---
 
@@ -102,7 +94,7 @@ Ex2Spreadsheet
 │   ├── Utils.java          # Utility functions
 │   └── Ex2Utils.java       # Constants and helper methods
 ├── test
-│   └── Ex2SheetTest.java   # Unit tests for spreadsheet logic
+│   └── Utils.java          # Unit tests for spreadsheet logic
 └── README.md               # Project documentation
 ```
 
@@ -115,11 +107,10 @@ Ex2Spreadsheet
 
 ---
 
-## 👤 Author
+## 👤 Creator
 
-Developed with care and dedication by:
+This project was made by :
 
-**[Amitai Bouzaglo ]**  
-🌐 [GitHub Profile](https://github.com/your-username)
+**[Amitai Bouzaglo]**  
 
 # Ex2
