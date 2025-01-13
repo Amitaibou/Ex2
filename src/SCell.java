@@ -59,10 +59,8 @@ public class SCell implements Cell {
             setError("");
 
         } else if (Utils.isForm(s, ex2Sheet)) {
-            //a0: 9 -> =b0+c8+y6
-            //b0: a0+p9+k7
+
             List<String> cells = Utils.extractCellReferences(s);
-            double tmp= 0;
             if (!cells.isEmpty()) {
 
                 for (String cell : cells) {
@@ -75,12 +73,11 @@ public class SCell implements Cell {
                             return;
                         } else {
                             type = Ex2Utils.FORM; // formula starts with '='setError("");
+                            setError("");
 
                         }
                     }
                 }
-                tmp = Utils.computeForm(s,ex2Sheet);
-                s = Double.valueOf(tmp).toString();
                 type = Ex2Utils.FORM;
                 setError("");
             } else {
