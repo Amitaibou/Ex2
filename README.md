@@ -17,7 +17,7 @@ Welcome to the **Ex2 Spreadsheet Application**! This project is a robust Java-ba
 
 ## 🚀 How to Use
 
-### Option 2: Run via IntelliJ IDEA
+### Run via IntelliJ IDEA
 1. Clone the repository:
    ```bash
    git clone https://github.com/Amitaibou/Ex2.git   ```
