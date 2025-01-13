@@ -50,6 +50,7 @@ public class Ex2Sheet implements Sheet {
 
         table[x][y] = new SCell(c, this, convertCoordinatesToCellName(x,y)); // update the cell content
         eval(); // reevaluate all cells in the sheet
+        int xyo= 0;
     }
 
 

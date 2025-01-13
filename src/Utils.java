@@ -54,15 +54,19 @@ public class Utils {
 
     }
 
-    public static boolean isValidCell(String cell, Ex2Sheet ex2Sheet){
-        try{
-            ex2Sheet.parseCoordinates(cell);
-        }catch (Exception e){
+    public static boolean isValidCell(String cell, Ex2Sheet sheet) {
+        if (cell == null || cell.isEmpty()) {
             return false;
         }
-        return true;
 
+        try {
+            int[] coords = sheet.parseCoordinates(cell);
+            return sheet.isIn(coords[0], coords[1]); // check if the coordinates are within the sheet bounds
+        } catch (Exception e) {
+            return false; // not a valid cell
+        }
     }
+
 
     // check if input is a valid formula
     public static boolean isForm(String input, Ex2Sheet ex2Sheet) {
@@ -90,6 +94,17 @@ public class Utils {
                 for(char c: dontAllowedCharacters.toCharArray()){
                     if(input.contains(c +"")) return false;
                 }
+                int counter = 0;
+                for (int i = 0; i<formula.length(); i++){
+                    if (formula.charAt(i)== '+'||formula.charAt(i)== '-'
+                            ||formula.charAt(i)== '*'||formula.charAt(i)== '/')
+                        counter = 0;
+                    if (Character.toUpperCase(formula.charAt(i)) >= 'A' &&
+                            Character.toUpperCase(formula.charAt(i))<= 'Z'){
+                        counter+=1;
+                    }
+                    if (counter>1) return false;
+                }
                 return !formula.isEmpty(); // valid if not empty
             }
         } else {
@@ -103,23 +118,40 @@ public class Utils {
     public static List<String> extractCellReferences(String formula) {
         List<String> cellReferences = new ArrayList<>();
         StringBuilder currentReference = new StringBuilder();
-
+        boolean hasLetter = false;
+        int letterCounter = 0;
         for (char ch : formula.toCharArray()) {
             // Add letters or digits to the current reference
-            if (Character.isLetter(ch) || Character.isDigit(ch)) {
+            //AAsd
+            if (Character.isLetter(ch)) {
+                hasLetter = true;
+                letterCounter +=1;
                 currentReference.append(ch);
+            }
+
+            else if(Character.isDigit(ch)&& hasLetter) {
+                currentReference.append(ch);
+
             } else {
                 // If we hit a non-alphanumeric character, save the current reference
                 if (currentReference.length() > 0) {
-                    cellReferences.add(currentReference.toString());
+                    if (letterCounter == 1) {
+                        cellReferences.add(currentReference.toString());
+                    }
                     currentReference.setLength(0); // Reset for the next reference
+                    hasLetter = false;
+                    letterCounter = 0;
+
                 }
+
             }
         }
 
         // Add the last reference if there is any
         if (currentReference.length() > 0) {
-            cellReferences.add(currentReference.toString());
+            if (letterCounter == 1) {
+                cellReferences.add(currentReference.toString());
+            }
         }
         cellReferences.replaceAll(String::toUpperCase);
 
