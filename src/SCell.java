@@ -28,7 +28,7 @@ public class SCell implements Cell {
     }
 
     // get the error message for the cell
-    public String getErr( ) {
+    public String getErr() {
         return err;
     }
 
@@ -86,33 +86,28 @@ public class SCell implements Cell {
             }
             line = s;
 
-        } else if (!Utils.isForm(s,ex2Sheet) && s.startsWith("=")) {
-            List<String> cells  = Utils.extractCellReferences(s);
+        } else if (!Utils.isForm(s, ex2Sheet) && s.startsWith("=")) {
+            List<String> cells = Utils.extractCellReferences(s);
             if (!cells.isEmpty()) {
                 for (String cell : cells) {
                     if (this.cellName.equals(cell)) {
                         type = Ex2Utils.ERR_CYCLE_FORM;
                         setError(Ex2Utils.ERR_CYCLE);
 
-                    }
-                    else {
+                    } else {
                         type = Ex2Utils.ERR_FORM_FORMAT;
                         setError(Ex2Utils.ERR_FORM);
 
                     }
                 }
-            }
-            else {
+            } else {
                 type = Ex2Utils.ERR_FORM_FORMAT;
                 setError(Ex2Utils.ERR_FORM);
 
             }
             line = s;
 
-        }
-
-
-        else if (Utils.isNumber(s)) {
+        } else if (Utils.isNumber(s)) {
             type = Ex2Utils.NUMBER; // cell contains a valid number
             line = Double.valueOf(s).toString();
             setError("");
@@ -122,7 +117,7 @@ public class SCell implements Cell {
             setError("");
         } else {
             type = Ex2Utils.ERR_CYCLE_FORM;// invalid format
-            line = s ;
+            line = s;
             setError(Ex2Utils.ERR_CYCLE); // set error message
         }
 
@@ -130,12 +125,10 @@ public class SCell implements Cell {
     }
 
 
-
-
     // return the data of the cell; prioritize error message if it exists
     @Override
     public String getData() {
-        if(err != "") return err;
+        if (err != "") return err;
         return line;
     }
 
@@ -156,6 +149,4 @@ public class SCell implements Cell {
     public void setOrder(int t) {
         order = t;
     }
-
-
 }
